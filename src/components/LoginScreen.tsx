@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 interface LoginScreenProps {
-  onLogin: (username: string, password: string, userAgent: string, ip: string) => boolean;
+  onLogin: (username: string, password: string, userAgent: string, ip: string) => Promise<boolean>;
 }
 
 const LoginScreen = ({ onLogin }: LoginScreenProps) => {
@@ -27,7 +27,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -37,7 +37,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
     }
 
     const userAgent = navigator.userAgent;
-    const success = onLogin(username, password, userAgent, userIP);
+    const success = await onLogin(username, password, userAgent, userIP);
     
     if (!success) {
       setError('Access denied: Invalid credentials');
@@ -50,7 +50,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
     return (
       <div className="min-h-screen bg-black text-green-400 font-mono p-4 overflow-hidden">
         <div className="animate-pulse">
-          <div className="mb-2">VEGGIE WARE 2.0 BIOS v2.4.1</div>
+          <div className="mb-2">VEGGIEWARE 2.0 BIOS v2.4.1</div>
           <div className="mb-2">Initializing secure boot sequence...</div>
           <div className="mb-2">Loading OSINT modules... [████████████████████████████████] 100%</div>
           <div className="mb-2">Establishing encrypted channels...</div>
@@ -65,7 +65,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
     <div className="min-h-screen bg-black text-green-400 font-mono flex items-center justify-center">
       <div className="w-full max-w-md p-8 border border-green-400 bg-black">
         <div className="text-center mb-8">
-          <h1 className="text-2xl mb-2">VEGGIE WARE 2.0</h1>
+          <h1 className="text-2xl mb-2">VEGGIEWARE 2.0</h1>
           <div className="text-sm opacity-75">OSINT Intelligence Terminal</div>
           <div className="text-xs mt-2 opacity-50">Authorized Personnel Only</div>
         </div>
