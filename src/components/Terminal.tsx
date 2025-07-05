@@ -21,7 +21,7 @@ const Terminal = ({ user, onLogout, isLocked }: TerminalProps) => {
     inputRef.current?.focus();
     
     // Welcome message
-    const welcomeMsg = `VEGGIEWARE v1.0 - OSINT Intelligence Terminal
+    const welcomeMsg = `VEGGIE WARE 2.0 - OSINT Intelligence Terminal
 Authenticated as: ${user.username}
 Session ID: ${user.loginTime}
 Type 'help' for available commands or 'exit' to logout`;

@@ -1,14 +1,20 @@
 
 import { useState, useEffect } from 'react';
+import MainScreen from '../components/MainScreen';
 import LoginScreen from '../components/LoginScreen';
 import Terminal from '../components/Terminal';
 import AdminPanel from '../components/AdminPanel';
 import { User, LoginAttempt } from '../types';
 
 const Index = () => {
+  const [showMainScreen, setShowMainScreen] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
   const [isLocked, setIsLocked] = useState(false);
+
+  const handleEnter = () => {
+    setShowMainScreen(false);
+  };
 
   const handleLogin = (username: string, password: string, userAgent: string, ip: string) => {
     const timestamp = new Date().toISOString();
@@ -49,7 +55,12 @@ const Index = () => {
 
   const handleLogout = () => {
     setUser(null);
+    setShowMainScreen(true);
   };
+
+  if (showMainScreen) {
+    return <MainScreen onEnter={handleEnter} />;
+  }
 
   if (!user) {
     return <LoginScreen onLogin={handleLogin} />;
