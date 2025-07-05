@@ -17,16 +17,45 @@ const Index = () => {
   };
 
   const handleLogin = async (username: string, password: string, userAgent: string, providedIp?: string) => {
+    // Check if site is locked and user is Guest - prevent login entirely
+    if (isLocked && username === 'Guest') {
+      const timestamp = new Date().toISOString();
+      let realIp = providedIp || 'Unknown';
+      
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        realIp = ipData.ip;
+      } catch (error) {
+        console.log('Failed to get IP:', error);
+      }
+
+      const attempt: LoginAttempt = {
+        id: Date.now().toString(),
+        username,
+        ip: realIp,
+        userAgent,
+        timestamp,
+        success: false
+      };
+      
+      setLoginAttempts(prev => [...prev, attempt]);
+      return false;
+    }
+
     const timestamp = new Date().toISOString();
     
-    // Get the user's real IP address
-    let realIp = providedIp || 'Unknown';
+    // Always fetch fresh IP address for each login attempt
+    let realIp = 'Unknown';
     try {
       const ipResponse = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipResponse.json();
       realIp = ipData.ip;
+      console.log('Fetched IP for login:', realIp);
     } catch (error) {
       console.log('Failed to get IP:', error);
+      // Fallback to provided IP if available
+      realIp = providedIp || 'Unknown';
     }
 
     const attempt: LoginAttempt = {
@@ -42,12 +71,6 @@ const Index = () => {
     if ((username === 'Guest' && password === 'Veggies') || 
         (username === 'Admin' && password === 'VeggiesAdmin')) {
       
-      // Check if site is locked and user is Guest
-      if (isLocked && username === 'Guest') {
-        setLoginAttempts(prev => [...prev, { ...attempt, success: false }]);
-        return false;
-      }
-
       attempt.success = true;
       setUser({
         username,
