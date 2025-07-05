@@ -12,7 +12,7 @@ const MainScreen = ({ onEnter }: MainScreenProps) => {
     <div className="min-h-screen bg-black text-green-400 font-mono flex items-center justify-center">
       <div className="text-center">
         <div className="mb-8">
-          <h1 className="text-4xl mb-4 tracking-wider">VEGGIE WARE 2.0</h1>
+          <h1 className="text-4xl mb-4 tracking-wider">VEGGIEWARE 2.0</h1>
           <div className="text-sm opacity-75">Advanced OSINT Intelligence Platform</div>
         </div>
         
@@ -33,7 +33,7 @@ const MainScreen = ({ onEnter }: MainScreenProps) => {
         
         <div className="mt-8 text-xs opacity-50">
           <div>Authorized Access Only</div>
-          <div className="mt-2">© 2024 Veggie Ware Systems</div>
+          <div className="mt-2">© 2024 Veggieware Systems</div>
         </div>
       </div>
     </div>

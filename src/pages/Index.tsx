@@ -16,12 +16,23 @@ const Index = () => {
     setShowMainScreen(false);
   };
 
-  const handleLogin = (username: string, password: string, userAgent: string, ip: string) => {
+  const handleLogin = async (username: string, password: string, userAgent: string, providedIp?: string) => {
     const timestamp = new Date().toISOString();
+    
+    // Get the user's real IP address
+    let realIp = providedIp || 'Unknown';
+    try {
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      realIp = ipData.ip;
+    } catch (error) {
+      console.log('Failed to get IP:', error);
+    }
+
     const attempt: LoginAttempt = {
       id: Date.now().toString(),
       username,
-      ip,
+      ip: realIp,
       userAgent,
       timestamp,
       success: false
@@ -42,7 +53,7 @@ const Index = () => {
         username,
         role: username === 'Admin' ? 'admin' : 'guest',
         loginTime: timestamp,
-        ip,
+        ip: realIp,
         userAgent
       });
       setLoginAttempts(prev => [...prev, attempt]);

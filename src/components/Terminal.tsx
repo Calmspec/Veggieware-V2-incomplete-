@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { User } from '../types';
 import { executeCommand } from '../utils/commands';
@@ -21,7 +20,7 @@ const Terminal = ({ user, onLogout, isLocked }: TerminalProps) => {
     inputRef.current?.focus();
     
     // Welcome message
-    const welcomeMsg = `VEGGIE WARE 2.0 - OSINT Intelligence Terminal
+    const welcomeMsg = `VEGGIEWARE 2.0 - OSINT Intelligence Terminal
 Authenticated as: ${user.username}
 Session ID: ${user.loginTime}
 Type 'help' for available commands or 'exit' to logout`;
