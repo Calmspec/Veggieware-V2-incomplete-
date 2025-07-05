@@ -67,7 +67,7 @@ const Index = () => {
       success: false
     };
 
-    // Validate credentials
+    // Validate credentials - Fixed Guest password to "Veggies"
     if ((username === 'Guest' && password === 'Veggies') || 
         (username === 'Admin' && password === 'VeggiesAdmin')) {
       
@@ -92,6 +92,17 @@ const Index = () => {
     setShowMainScreen(true);
   };
 
+  const handleRefreshLogs = async () => {
+    // Force refresh IP logs by making a test request
+    try {
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      console.log('Refreshed - Current IP:', ipData.ip);
+    } catch (error) {
+      console.log('Refresh failed:', error);
+    }
+  };
+
   if (showMainScreen) {
     return <MainScreen onEnter={handleEnter} />;
   }
@@ -109,6 +120,7 @@ const Index = () => {
         isLocked={isLocked}
         onToggleLock={setIsLocked}
         onClearLogs={() => setLoginAttempts([])}
+        onRefreshLogs={handleRefreshLogs}
       />
     );
   }

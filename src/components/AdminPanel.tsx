@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { User, LoginAttempt } from '../types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,9 +9,10 @@ interface AdminPanelProps {
   isLocked: boolean;
   onToggleLock: (locked: boolean) => void;
   onClearLogs: () => void;
+  onRefreshLogs: () => void;
 }
 
-const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onClearLogs }: AdminPanelProps) => {
+const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onClearLogs, onRefreshLogs }: AdminPanelProps) => {
   const [showConfirmClear, setShowConfirmClear] = useState(false);
 
   const handleClearLogs = () => {
@@ -71,7 +71,10 @@ const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onC
                   >
                     {showConfirmClear ? 'CONFIRM CLEAR' : 'CLEAR LOGS'}
                   </button>
-                  <button className="border border-green-400 px-3 py-1 hover:bg-green-400 hover:text-black transition-colors">
+                  <button 
+                    onClick={onRefreshLogs}
+                    className="border border-green-400 px-3 py-1 hover:bg-green-400 hover:text-black transition-colors"
+                  >
                     REFRESH
                   </button>
                 </div>
