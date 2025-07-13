@@ -90,119 +90,43 @@ Created:      ${new Date().toISOString().split('T')[0]}
   }
 };
 
-// Enhanced global phone number validation
+// Enhanced global phone number validation using API
 const validatePhone = async (phone: string): Promise<string> => {
+  if (!phone.trim()) {
+    return "Usage: phone <phone_number>\nExample: phone +1234567890";
+  }
+
   try {
-    // Remove non-numeric characters for analysis
-    const cleaned = phone.replace(/\D/g, '');
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
-    if (cleaned.length < 7) {
-      return `Error: Invalid phone number format`;
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/phone-lookup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ phone })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return `❌ Phone lookup failed: ${errorData.error}`;
     }
 
-    let country = 'Unknown';
-    let region = 'Unknown region';
-    let carrier = 'Unknown carrier';
-    let numberType = 'Unknown';
+    const data = await response.json();
     
-    // Enhanced global country code detection
-    const countryCodeMap = {
-      // Major countries
-      '1': { country: 'United States/Canada', carrier: 'Verizon/AT&T/T-Mobile' },
-      '44': { country: 'United Kingdom', carrier: 'EE/Vodafone/O2' },
-      '49': { country: 'Germany', carrier: 'Deutsche Telekom/Vodafone' },
-      '33': { country: 'France', carrier: 'Orange/SFR/Bouygues' },
-      '39': { country: 'Italy', carrier: 'TIM/Vodafone/Wind' },
-      '34': { country: 'Spain', carrier: 'Movistar/Vodafone/Orange' },
-      '7': { country: 'Russia/Kazakhstan', carrier: 'MTS/Beeline/MegaFon' },
-      '86': { country: 'China', carrier: 'China Mobile/China Unicom' },
-      '81': { country: 'Japan', carrier: 'NTT DoCoMo/SoftBank/KDDI' },
-      '82': { country: 'South Korea', carrier: 'SK Telecom/KT/LG U+' },
-      '91': { country: 'India', carrier: 'Airtel/Jio/Vodafone Idea' },
-      '55': { country: 'Brazil', carrier: 'Vivo/TIM/Claro' },
-      '52': { country: 'Mexico', carrier: 'Telcel/AT&T/Movistar' },
-      '54': { country: 'Argentina', carrier: 'Movistar/Claro/Personal' },
-      '61': { country: 'Australia', carrier: 'Telstra/Optus/Vodafone' },
-      '27': { country: 'South Africa', carrier: 'MTN/Vodacom/Cell C' },
-      '234': { country: 'Nigeria', carrier: 'MTN/Airtel/Glo' },
-      '20': { country: 'Egypt', carrier: 'Vodafone/Orange/Etisalat' },
-      '90': { country: 'Turkey', carrier: 'Turkcell/Vodafone/Turk Telekom' },
-      '98': { country: 'Iran', carrier: 'Hamrah-e Avval/Irancell' },
-      '92': { country: 'Pakistan', carrier: 'Jazz/Telenor/Zong' },
-      '93': { country: 'Afghanistan', carrier: 'Afghan Wireless/Roshan/MTN' },
-      '94': { country: 'Sri Lanka', carrier: 'Dialog/Mobitel/Hutch' },
-      '95': { country: 'Myanmar', carrier: 'Ooredoo/Telenor/MPT' },
-      '880': { country: 'Bangladesh', carrier: 'Grameenphone/Banglalink/Robi' },
-      '977': { country: 'Nepal', carrier: 'Ncell/Nepal Telecom' },
-      '62': { country: 'Indonesia', carrier: 'Telkomsel/XL/Indosat' },
-      '63': { country: 'Philippines', carrier: 'Globe/Smart/Sun' },
-      '60': { country: 'Malaysia', carrier: 'Maxis/Celcom/Digi' },
-      '65': { country: 'Singapore', carrier: 'Singtel/StarHub/M1' },
-      '66': { country: 'Thailand', carrier: 'AIS/DTAC/TrueMove' },
-      '84': { country: 'Vietnam', carrier: 'Viettel/Vinaphone/MobiFone' },
-      '380': { country: 'Ukraine', carrier: 'Kyivstar/Vodafone/lifecell' },
-      '48': { country: 'Poland', carrier: 'Orange/Play/T-Mobile' },
-      '31': { country: 'Netherlands', carrier: 'KPN/Vodafone/T-Mobile' },
-      '32': { country: 'Belgium', carrier: 'Proximus/Orange/Base' },
-      '46': { country: 'Sweden', carrier: 'Telia/Tele2/3' },
-      '47': { country: 'Norway', carrier: 'Telenor/Telia/Ice' },
-      '45': { country: 'Denmark', carrier: 'TDC/Telenor/3' },
-      '358': { country: 'Finland', carrier: 'Elisa/Telia/DNA' },
-      '41': { country: 'Switzerland', carrier: 'Swisscom/Sunrise/Salt' },
-      '43': { country: 'Austria', carrier: 'A1/T-Mobile/3' },
-      '351': { country: 'Portugal', carrier: 'MEO/Vodafone/NOS' },
-      '30': { country: 'Greece', carrier: 'Cosmote/Vodafone/Wind' },
-      '420': { country: 'Czech Republic', carrier: 'O2/T-Mobile/Vodafone' },
-      '421': { country: 'Slovakia', carrier: 'Orange/Telekom/O2' },
-      '36': { country: 'Hungary', carrier: 'Telekom/Telenor/Vodafone' },
-      '40': { country: 'Romania', carrier: 'Orange/Vodafone/Telekom' },
-      '359': { country: 'Bulgaria', carrier: 'Vivacom/Telenor/A1' }
-    };
-
-    // Find matching country code
-    for (const [code, info] of Object.entries(countryCodeMap)) {
-      if (cleaned.startsWith(code)) {
-        country = info.country;
-        carrier = info.carrier;
-        region = info.country;
-        break;
-      }
-    }
-
-    // Special handling for US numbers
-    if (cleaned.startsWith('1') && cleaned.length === 11) {
-      const areaCode = cleaned.substring(1, 4);
-      const realRegionMap: { [key: string]: string } = {
-        '201': 'Newark, NJ', '202': 'Washington, DC', '203': 'New Haven, CT',
-        '205': 'Birmingham, AL', '206': 'Seattle, WA', '212': 'New York, NY',
-        '213': 'Los Angeles, CA', '214': 'Dallas, TX', '215': 'Philadelphia, PA',
-        '310': 'Beverly Hills, CA', '312': 'Chicago, IL', '313': 'Detroit, MI',
-        '404': 'Atlanta, GA', '415': 'San Francisco, CA', '512': 'Austin, TX',
-        '586': 'Warren, MI', '707': 'Santa Rosa, CA', '818': 'Van Nuys, CA',
-        '702': 'Las Vegas, NV', '305': 'Miami, FL', '713': 'Houston, TX',
-        '617': 'Boston, MA', '503': 'Portland, OR', '602': 'Phoenix, AZ'
-      };
-      region = realRegionMap[areaCode] || `Area Code ${areaCode}, USA`;
-    }
-
-    // Determine number type
-    numberType = Math.random() > 0.4 ? 'Mobile' : 'Landline';
-
-    return `
-Phone Intelligence Report for ${phone}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Number:       ${phone}
-Cleaned:      ${cleaned}
-Format:       Valid
-Country:      ${country}
-Region:       ${region}
-Carrier:      ${carrier}
-Type:         ${numberType}
-Status:       Active
-`;
+    return `📞 Phone Validation Results:
+━━━━━━━━━━━━━━━━━━━━━━━━
+📱 Number: ${data.phone}
+🌍 Region: ${data.region}
+📡 Country Code: ${data.countryCode}
+📶 Carrier: ${data.carrier}
+📞 Type: ${data.type}
+✅ Status: ${data.valid ? 'Valid' : 'Invalid'}
+⏰ Checked: ${new Date(data.timestamp).toLocaleString()}`;
   } catch (error) {
-    return `Error: Failed to validate phone number - ${error instanceof Error ? error.message : 'Network error'}`;
+    return `❌ Phone lookup error: Unable to connect to validation service`;
   }
 };
 

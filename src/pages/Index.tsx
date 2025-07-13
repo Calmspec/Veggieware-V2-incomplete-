@@ -5,6 +5,7 @@ import LoginScreen from '../components/LoginScreen';
 import Terminal from '../components/Terminal';
 import AdminPanel from '../components/AdminPanel';
 import { User, LoginAttempt } from '../types';
+import { api } from '../lib/api';
 
 const Index = () => {
   const [showMainScreen, setShowMainScreen] = useState(true);
@@ -12,11 +13,31 @@ const Index = () => {
   const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
   const [isLocked, setIsLocked] = useState(false);
 
+  // Log visitor on component mount
+  useEffect(() => {
+    const logVisitor = async () => {
+      try {
+        await api.logVisitor('Visitor', navigator.userAgent, 'page_visit');
+      } catch (error) {
+        console.error('Failed to log visitor:', error);
+      }
+    };
+
+    logVisitor();
+  }, []);
+
   const handleEnter = () => {
     setShowMainScreen(false);
   };
 
   const handleLogin = async (username: string, password: string, userAgent: string, providedIp?: string) => {
+    // Log the login attempt
+    try {
+      await api.logVisitor(username, userAgent, 'login_attempt');
+    } catch (error) {
+      console.error('Failed to log login attempt:', error);  
+    }
+
     // Check if site is locked and user is Guest - prevent login entirely
     if (isLocked && username === 'Guest') {
       const timestamp = new Date().toISOString();
@@ -93,13 +114,20 @@ const Index = () => {
   };
 
   const handleRefreshLogs = async () => {
-    // Force refresh IP logs by making a test request
     try {
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      console.log('Refreshed - Current IP:', ipData.ip);
+      const data = await api.getVisitorLogs();
+      // Convert visitor logs to login attempts format for display
+      const convertedLogs = data.logs.map((log: any) => ({
+        id: log.id?.toString() || Date.now().toString(),
+        username: log.username,
+        timestamp: log.timestamp,
+        success: log.action !== 'failed_login',
+        ip: log.ip_address,
+        userAgent: log.user_agent
+      }));
+      setLoginAttempts(convertedLogs);
     } catch (error) {
-      console.log('Refresh failed:', error);
+      console.error('Failed to refresh logs:', error);
     }
   };
 
