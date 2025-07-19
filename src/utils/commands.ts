@@ -83,7 +83,6 @@ Deliverable:  Likely valid (MX records found)
 Risk Level:   Low
 Type:         Professional email
 Disposable:   No
-Created:      ${new Date().toISOString().split('T')[0]}
 `;
   } catch (error) {
     return `Error: Failed to validate email - ${error instanceof Error ? error.message : 'Network error'}`;
@@ -180,75 +179,79 @@ const validatePhoneFallback = async (phone: string): Promise<string> => {
 ⏰ Checked: ${new Date().toLocaleString()}`;
 };
 
-// Discord lookup with only account creation date (no fake data)
-const discordLookup = async (userId: string): Promise<string> => {
+// GitHub lookup with real API integration
+const githubLookup = async (username: string): Promise<string> => {
   try {
-    // Validate Discord user ID format (17-19 digits)
-    if (!/^\d{17,19}$/.test(userId)) {
-      return `❌ Error: Invalid Discord user ID format. Use numeric ID (17-19 digits)`;
+    // Validate username format
+    if (!/^[a-zA-Z0-9\-_]+$/.test(username)) {
+      return `❌ Error: Invalid GitHub username format`;
     }
 
-    // Extract account creation date from Discord Snowflake ID
-    const timestamp = (parseInt(userId) >> 22) + 1420070400000;
-    const accountCreated = new Date(timestamp).toLocaleDateString('en-US', { 
-      year: 'numeric', 
+    // Fetch user data from GitHub API
+    const response = await fetch(`https://api.github.com/users/${username}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return `❌ GitHub user "${username}" not found`;
+      }
+      throw new Error(`GitHub API error: ${response.status}`);
+    }
+
+    const userData = await response.json();
+    
+    // Fetch repositories
+    const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=10`);
+    const repos = reposResponse.ok ? await reposResponse.json() : [];
+
+    const createdDate = new Date(userData.created_at).toLocaleDateString('en-US', {
+      year: 'numeric',
       month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     });
 
-    // Try to get additional info from discord.id API
-    try {
-      const response = await fetch(`https://discord.id/api/v1/user/${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        
-        return `🔍 Discord OSINT Intelligence Report
+    const updatedDate = new Date(userData.updated_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    return `🔍 GitHub Intelligence Report
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-👤 USER INFORMATION:
-   ID: ${userId}
-   Username: ${data.username || 'Not available'}
-   Discriminator: ${data.discriminator || 'Not available'}
-   Account Created: ${accountCreated}
-   Bot Account: ${data.bot ? 'Yes' : 'No'}
-   
-📊 ACCOUNT STATUS:
-   Profile Status: ${data.avatar ? 'Has Avatar' : 'No Avatar'}
-   
-⚠️  Note: Only publicly available information displayed`;
-      }
-    } catch (apiError) {
-      console.log('Discord API unavailable, showing basic info');
-    }
+👤 USER PROFILE:
+   Username: ${userData.login}
+   Name: ${userData.name || 'Not provided'}
+   Bio: ${userData.bio || 'No bio available'}
+   Company: ${userData.company || 'Not specified'}
+   Location: ${userData.location || 'Not specified'}
+   Website: ${userData.blog || 'None'}
+   Email: ${userData.email || 'Not public'}
 
-    return `🔍 Discord OSINT Intelligence Report
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 STATISTICS:
+   Public Repos: ${userData.public_repos}
+   Followers: ${userData.followers}
+   Following: ${userData.following}
+   Public Gists: ${userData.public_gists}
 
-👤 USER INFORMATION:
-   ID: ${userId}
-   Account Created: ${accountCreated}
+📅 TIMELINE:
+   Account Created: ${createdDate}
+   Last Updated: ${updatedDate}
+   Profile Type: ${userData.type}
 
-⚠️  LIMITED DATA AVAILABLE:
-   • Additional info requires API access
-   • Only basic snowflake data shown
-   • Profile Info: Requires proper API access
+📁 RECENT REPOSITORIES:
+${repos.slice(0, 5).map((repo: any) => 
+   `   • ${repo.name} ${repo.language ? `(${repo.language})` : ''}${repo.description ? ` - ${repo.description.slice(0, 50)}${repo.description.length > 50 ? '...' : ''}` : ''}`
+).join('\n') || '   No public repositories'}
 
-🔐 TECHNICAL DETAILS:
-   • ID Type: Discord Snowflake
-   • Timestamp Extracted: ${timestamp}
-   • Valid Format: ✅ Confirmed
-
-📋 TO GET FULL DATA:
-   • Bot must be in same Discord server as target user
-   • Bot needs "View Server Members" permission
-   • Use Discord Developer Portal to set up bot token
+🔗 LINKS:
+   Profile: https://github.com/${username}
+   Avatar: ${userData.avatar_url}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🕒 Report Generated: ${new Date().toLocaleString()}`;
+⚠️  Data sourced from GitHub's public API`;
+
   } catch (error) {
-    return `❌ Discord OSINT Error: Failed to lookup user - ${error instanceof Error ? error.message : 'Network error'}`;
+    return `❌ GitHub OSINT Error: ${error instanceof Error ? error.message : 'Failed to fetch user data'}`;
   }
 };
 
@@ -422,11 +425,11 @@ export const executeCommand = async (command: string, user: User): Promise<strin
 
     case 'discord':
       if (!arg) return 'Usage: discord <USER_ID>\nExample: discord 1381317165776375849';
-      return await discordLookup(arg);
+      return 'Discord OSINT lookup is currently Work In Progress (WIP) and not functional yet.';
 
     case 'github':
       if (!arg) return 'Usage: github <USERNAME>\nExample: github octocat';
-      return `GitHub Intelligence for ${arg}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nProfile: https://github.com/${arg}\nPublic Repos: Available via API\nFollowers: Available via API\nCreated: Available via API\nNote: Connect to GitHub API for full data`;
+      return await githubLookup(arg);
 
     case 'hash':
       if (!arg) return 'Usage: hash <STRING>\nExample: hash password123';
