@@ -46,5 +46,18 @@ export const api = {
     }
     
     return response.json();
+  },
+
+  async checkLockStatus() {
+    // For now, use localStorage as fallback since we need a simple lock mechanism
+    const isLocked = localStorage.getItem('veggieware-lock') === 'true';
+    return { isLocked };
+  },
+
+  async setLockStatus(isLocked: boolean) {
+    localStorage.setItem('veggieware-lock', isLocked.toString());
+    // Broadcast to other tabs/windows
+    window.dispatchEvent(new CustomEvent('veggieware-lock-changed', { detail: { isLocked } }));
+    return { success: true };
   }
 };

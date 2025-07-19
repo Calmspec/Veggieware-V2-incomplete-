@@ -13,6 +13,25 @@ const Index = () => {
   const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
   const [isLocked, setIsLocked] = useState(false);
 
+  // Check lock status on mount and periodically
+  useEffect(() => {
+    const checkLockStatus = async () => {
+      try {
+        const response = await api.checkLockStatus();
+        setIsLocked(response.isLocked);
+      } catch (error) {
+        console.error('Failed to check lock status:', error);
+      }
+    };
+
+    checkLockStatus();
+    
+    // Check lock status every 30 seconds
+    const interval = setInterval(checkLockStatus, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Log visitor on component mount
   useEffect(() => {
     const logVisitor = async () => {
@@ -146,7 +165,14 @@ const Index = () => {
         loginAttempts={loginAttempts}
         onLogout={handleLogout}
         isLocked={isLocked}
-        onToggleLock={setIsLocked}
+        onToggleLock={async (locked: boolean) => {
+          try {
+            await api.setLockStatus(locked);
+            setIsLocked(locked);
+          } catch (error) {
+            console.error('Failed to toggle lock:', error);
+          }
+        }}
         onClearLogs={() => setLoginAttempts([])}
         onRefreshLogs={handleRefreshLogs}
       />

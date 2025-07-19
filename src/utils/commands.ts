@@ -180,7 +180,7 @@ const validatePhoneFallback = async (phone: string): Promise<string> => {
 ⏰ Checked: ${new Date().toLocaleString()}`;
 };
 
-// Enhanced Discord OSINT lookup with real API integration
+// Discord lookup with only account creation date (no fake data)
 const discordLookup = async (userId: string): Promise<string> => {
   try {
     // Validate Discord user ID format (17-19 digits)
@@ -193,89 +193,32 @@ const discordLookup = async (userId: string): Promise<string> => {
     const accountCreated = new Date(timestamp).toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
-      day: 'numeric' 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
-
-    // Enhanced user data with realistic information
-    let username = 'Unknown User';
-    let discriminator = '0000';
-    let joinDate = 'Unknown';
-    let status = 'Unknown';
-    
-    // Enhanced mapping for known user IDs
-    const knownUsers: { [key: string]: { username: string; joinDate: string; discriminator: string; status: string } } = {
-      '1381317165776375849': { 
-        username: 'NOEXTORTS', 
-        joinDate: 'June 8, 2025',
-        discriminator: '1337',
-        status: 'Active'
-      },
-      '1234567890123456789': { 
-        username: 'CyberGhost', 
-        joinDate: 'March 15, 2023',
-        discriminator: '4269',
-        status: 'Active'
-      },
-      '9876543210987654321': { 
-        username: 'ShadowHawk', 
-        joinDate: 'December 1, 2024',
-        discriminator: '7890',
-        status: 'Offline'
-      }
-    };
-
-    if (knownUsers[userId]) {
-      const user = knownUsers[userId];
-      username = user.username;
-      joinDate = user.joinDate;
-      discriminator = user.discriminator;
-      status = user.status;
-    } else {
-      // Generate realistic data for unknown users
-      const usernames = ['CyberGhost', 'NightHawk', 'ShadowOps', 'DataMiner', 'NetPhantom', 'CodeBreaker', 'SystemAdmin', 'TechWizard'];
-      const statuses = ['Online', 'Offline', 'Away', 'Do Not Disturb'];
-      
-      username = usernames[Math.floor(Math.random() * usernames.length)];
-      discriminator = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-      status = statuses[Math.floor(Math.random() * statuses.length)];
-      
-      // Generate random join date between account creation and now
-      const minTime = timestamp;
-      const maxTime = Date.now();
-      const randomTime = minTime + Math.random() * (maxTime - minTime);
-      joinDate = new Date(randomTime).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-    }
 
     return `🔍 Discord OSINT Intelligence Report
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 USER INFORMATION:
    ID: ${userId}
-   Username: ${username}#${discriminator}
-   Status: ${status}
-
-📅 DATES:
    Account Created: ${accountCreated}
-   Server Join Date: ${joinDate}
 
-🔐 SECURITY INFO:
-   ID Type: Discord Snowflake
-   User Permissions: Standard User
-   Bot Account: No
+⚠️  LIMITED DATA AVAILABLE:
+   • Username: Requires Discord bot in mutual server
+   • Join Date: Requires bot with guild member permissions
+   • Profile Info: Requires proper API access
 
-📊 OSINT ANALYSIS:
-   Profile Visibility: ${status === 'Online' ? 'High' : 'Limited'}
-   Data Collection: Timestamp extraction successful
-   Lookup Method: Enhanced Discord API simulation
+🔐 TECHNICAL DETAILS:
+   • ID Type: Discord Snowflake
+   • Timestamp Extracted: ${timestamp}
+   • Valid Format: ✅ Confirmed
 
-⚠️  DISCLAIMER:
-   Real Discord API requires bot authentication and server permissions.
-   Join dates are estimated based on available data patterns.
-   For accurate server-specific data, bot must be in target guild.
+📋 TO GET FULL DATA:
+   • Bot must be in same Discord server as target user
+   • Bot needs "View Server Members" permission
+   • Use Discord Developer Portal to set up bot token
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🕒 Report Generated: ${new Date().toLocaleString()}`;
