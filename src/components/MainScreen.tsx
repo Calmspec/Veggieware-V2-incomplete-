@@ -12,7 +12,7 @@ const MainScreen = ({ onEnter }: MainScreenProps) => {
     <div className="min-h-screen bg-black text-green-400 font-mono flex items-center justify-center">
       <div className="text-center">
         <div className="mb-8">
-          <h1 className="text-4xl mb-4 tracking-wider">VEGGIEWARE 2.0</h1>
+          <h1 className="text-4xl mb-4 tracking-wider">VEGGIEWARE 2.1</h1>
           <div className="text-sm opacity-75">Advanced OSINT Intelligence Platform</div>
         </div>
         

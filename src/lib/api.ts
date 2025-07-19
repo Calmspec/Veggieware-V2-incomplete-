@@ -1,5 +1,6 @@
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use Lovable's built-in Supabase integration
+const SUPABASE_URL = 'https://kbjkzugzumejvylwsqml.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtiamt6dWd6dW1lanZ5bHdzcW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwNzE3MTYsImV4cCI6MjA0NzY0NzcxNn0.QYOeOZqBqWLj8KktOWj-z9COpI9eQILgdl0YOkqZqSA';
 
 export const api = {
   async phoneLookup(phone: string) {
@@ -49,15 +50,45 @@ export const api = {
   },
 
   async checkLockStatus() {
-    // For now, use localStorage as fallback since we need a simple lock mechanism
-    const isLocked = localStorage.getItem('veggieware-lock') === 'true';
-    return { isLocked };
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/check-lock-status`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to check lock status');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Lock status check failed:', error);
+      return { isLocked: false };
+    }
   },
 
   async setLockStatus(isLocked: boolean) {
-    localStorage.setItem('veggieware-lock', isLocked.toString());
-    // Broadcast to other tabs/windows
-    window.dispatchEvent(new CustomEvent('veggieware-lock-changed', { detail: { isLocked } }));
-    return { success: true };
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/set-lock-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ isLocked })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to set lock status');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Set lock status failed:', error);
+      return { success: false };
+    }
   }
 };

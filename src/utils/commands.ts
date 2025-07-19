@@ -198,6 +198,31 @@ const discordLookup = async (userId: string): Promise<string> => {
       minute: '2-digit'
     });
 
+    // Try to get additional info from discord.id API
+    try {
+      const response = await fetch(`https://discord.id/api/v1/user/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        return `🔍 Discord OSINT Intelligence Report
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 USER INFORMATION:
+   ID: ${userId}
+   Username: ${data.username || 'Not available'}
+   Discriminator: ${data.discriminator || 'Not available'}
+   Account Created: ${accountCreated}
+   Bot Account: ${data.bot ? 'Yes' : 'No'}
+   
+📊 ACCOUNT STATUS:
+   Profile Status: ${data.avatar ? 'Has Avatar' : 'No Avatar'}
+   
+⚠️  Note: Only publicly available information displayed`;
+      }
+    } catch (apiError) {
+      console.log('Discord API unavailable, showing basic info');
+    }
+
     return `🔍 Discord OSINT Intelligence Report
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -206,8 +231,8 @@ const discordLookup = async (userId: string): Promise<string> => {
    Account Created: ${accountCreated}
 
 ⚠️  LIMITED DATA AVAILABLE:
-   • Username: Requires Discord bot in mutual server
-   • Join Date: Requires bot with guild member permissions
+   • Additional info requires API access
+   • Only basic snowflake data shown
    • Profile Info: Requires proper API access
 
 🔐 TECHNICAL DETAILS:
