@@ -32,17 +32,28 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Log visitor on component mount
+  // Load login logs on mount
   useEffect(() => {
-    const logVisitor = async () => {
+    const loadLogs = async () => {
       try {
-        await api.logVisitor('Visitor', navigator.userAgent, 'page_visit');
+        const data = await api.getVisitorLogs();
+        const convertedLogs = data.logs
+          .filter((log: any) => log.action === 'successful_login' || log.action === 'failed_login')
+          .map((log: any) => ({
+            id: log.id?.toString() || Date.now().toString(),
+            username: log.username,
+            timestamp: log.created_at,
+            success: log.action === 'successful_login',
+            ip: log.ip_address,
+            userAgent: log.user_agent
+          }));
+        setLoginAttempts(convertedLogs);
       } catch (error) {
-        console.error('Failed to log visitor:', error);
+        console.error('Failed to load logs:', error);
       }
     };
 
-    logVisitor();
+    loadLogs();
   }, []);
 
   const handleEnter = () => {
@@ -50,68 +61,46 @@ const Index = () => {
   };
 
   const handleLogin = async (username: string, password: string, userAgent: string, providedIp?: string) => {
-    // Log the login attempt
-    try {
-      await api.logVisitor(username, userAgent, 'login_attempt');
-    } catch (error) {
-      console.error('Failed to log login attempt:', error);  
-    }
-
-    // Check if site is locked and user is Guest - prevent login entirely
-    if (isLocked && username === 'Guest') {
-      const timestamp = new Date().toISOString();
-      let realIp = providedIp || 'Unknown';
-      
-      try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        realIp = ipData.ip;
-      } catch (error) {
-        console.log('Failed to get IP:', error);
-      }
-
-      const attempt: LoginAttempt = {
-        id: Date.now().toString(),
-        username,
-        ip: realIp,
-        userAgent,
-        timestamp,
-        success: false
-      };
-      
-      setLoginAttempts(prev => [...prev, attempt]);
-      return false;
-    }
-
-    const timestamp = new Date().toISOString();
-    
     // Always fetch fresh IP address for each login attempt
     let realIp = 'Unknown';
     try {
       const ipResponse = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipResponse.json();
       realIp = ipData.ip;
-      console.log('Fetched IP for login:', realIp);
     } catch (error) {
       console.log('Failed to get IP:', error);
-      // Fallback to provided IP if available
       realIp = providedIp || 'Unknown';
     }
 
-    const attempt: LoginAttempt = {
-      id: Date.now().toString(),
-      username,
-      ip: realIp,
-      userAgent,
-      timestamp,
-      success: false
-    };
-
-    // Validate credentials - Fixed Guest password to "Veggies"
-    if ((username === 'Guest' && password === 'Veggies') || 
-        (username === 'Admin' && password === 'VeggiesAdmin')) {
+    // Check if site is locked and user is Guest - prevent login entirely
+    if (isLocked && username === 'Guest') {
+      // Log failed attempt to backend
+      try {
+        await api.logVisitor(username, userAgent, 'failed_login');
+      } catch (error) {
+        console.error('Failed to log failed login:', error);
+      }
       
-      attempt.success = true;
+      // Refresh logs to show the failed attempt
+      await handleRefreshLogs();
+      return false;
+    }
+
+    // Validate credentials - Guest password is "Veggies", Admin password is "VeggiesAdmin"
+    const isValidCredentials = 
+      (username === 'Guest' && password === 'Veggies') || 
+      (username === 'Admin' && password === 'VeggiesAdmin');
+    
+    // Log the login attempt to backend
+    try {
+      const action = isValidCredentials ? 'successful_login' : 'failed_login';
+      await api.logVisitor(username, userAgent, action);
+    } catch (error) {
+      console.error('Failed to log login attempt:', error);
+    }
+
+    if (isValidCredentials) {
+      const timestamp = new Date().toISOString();
       setUser({
         username,
         role: username === 'Admin' ? 'admin' : 'guest',
@@ -119,11 +108,14 @@ const Index = () => {
         ip: realIp,
         userAgent
       });
-      setLoginAttempts(prev => [...prev, attempt]);
+      
+      // Refresh logs after successful login
+      await handleRefreshLogs();
       return true;
     }
 
-    setLoginAttempts(prev => [...prev, attempt]);
+    // Refresh logs after failed login
+    await handleRefreshLogs();
     return false;
   };
 
@@ -136,14 +128,16 @@ const Index = () => {
     try {
       const data = await api.getVisitorLogs();
       // Convert visitor logs to login attempts format for display
-      const convertedLogs = data.logs.map((log: any) => ({
-        id: log.id?.toString() || Date.now().toString(),
-        username: log.username,
-        timestamp: log.timestamp,
-        success: log.action !== 'failed_login',
-        ip: log.ip_address,
-        userAgent: log.user_agent
-      }));
+      const convertedLogs = data.logs
+        .filter((log: any) => log.action === 'successful_login' || log.action === 'failed_login')
+        .map((log: any) => ({
+          id: log.id?.toString() || Date.now().toString(),
+          username: log.username,
+          timestamp: log.created_at,
+          success: log.action === 'successful_login',
+          ip: log.ip_address,
+          userAgent: log.user_agent
+        }));
       setLoginAttempts(convertedLogs);
     } catch (error) {
       console.error('Failed to refresh logs:', error);
@@ -173,7 +167,11 @@ const Index = () => {
             console.error('Failed to toggle lock:', error);
           }
         }}
-        onClearLogs={() => setLoginAttempts([])}
+        onClearLogs={async () => {
+          setLoginAttempts([]);
+          // Note: This only clears the local state. 
+          // To clear backend logs, you'd need a delete endpoint
+        }}
         onRefreshLogs={handleRefreshLogs}
       />
     );
