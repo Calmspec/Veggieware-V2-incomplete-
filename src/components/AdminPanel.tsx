@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, LoginAttempt } from '../types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -14,6 +14,11 @@ interface AdminPanelProps {
 
 const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onClearLogs, onRefreshLogs }: AdminPanelProps) => {
   const [showConfirmClear, setShowConfirmClear] = useState(false);
+
+  // Auto-refresh logs when admin panel mounts
+  useEffect(() => {
+    onRefreshLogs();
+  }, [onRefreshLogs]);
 
   const handleClearLogs = () => {
     if (showConfirmClear) {
