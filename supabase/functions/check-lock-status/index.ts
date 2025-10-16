@@ -21,7 +21,7 @@ serve(async (req) => {
     const { data, error } = await supabaseClient
       .from('system_settings')
       .select('value')
-      .eq('key', 'guest_locked')
+      .eq('key', 'site_locked')
       .single()
 
     if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
@@ -35,7 +35,7 @@ serve(async (req) => {
       )
     }
 
-    const isLocked = data?.value === 'true'
+    const isLocked = data?.value === true || data?.value === 'true'
 
     return new Response(
       JSON.stringify({ isLocked }),

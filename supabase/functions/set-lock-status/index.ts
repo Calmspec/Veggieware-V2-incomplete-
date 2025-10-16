@@ -23,9 +23,8 @@ serve(async (req) => {
     const { error } = await supabaseClient
       .from('system_settings')
       .upsert({ 
-        key: 'guest_locked', 
-        value: isLocked.toString(),
-        updated_at: new Date().toISOString()
+        key: 'site_locked', 
+        value: isLocked
       })
 
     if (error) {

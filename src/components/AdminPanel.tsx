@@ -30,7 +30,7 @@ const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onC
       {/* Header */}
       <div className="border-b border-green-400 p-4 flex justify-between items-center">
         <div>
-          <h1 className="text-xl">VEGGIEWARE 2.0 - Admin Panel</h1>
+          <h1 className="text-xl">VEGGIEWARE 2.1 - Admin Panel</h1>
           <div className="text-sm opacity-75">Administrator: {user.username}</div>
         </div>
         <button 

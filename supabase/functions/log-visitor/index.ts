@@ -53,9 +53,8 @@ serve(async (req) => {
         ip_address: visitorIP,
         username: username || 'Guest',
         user_agent: userAgent || 'Unknown',
-        location: location,
         action: action,
-        timestamp: new Date().toISOString()
+        success: true
       })
 
     if (error) {

@@ -89,42 +89,29 @@ Disposable:   No
   }
 };
 
-// Enhanced global phone number validation using external API
+// Enhanced global phone number validation using backend
 const validatePhone = async (phone: string): Promise<string> => {
   if (!phone.trim()) {
     return "Usage: phone <phone_number>\nExample: phone +1234567890";
   }
 
   try {
-    // Clean phone number
-    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+    // Import api dynamically to avoid circular dependencies
+    const { api } = await import('../lib/api');
     
-    // Basic validation
-    if (!/^\+?[\d]{7,15}$/.test(cleanPhone)) {
-      return `❌ Invalid phone number format. Must be 7-15 digits.`;
-    }
-
-    // Use numverify API for real phone validation
-    const response = await fetch(`http://apilayer.net/api/validate?access_key=demo&number=${cleanPhone}&country_code=&format=1`);
-    
-    if (!response.ok) {
-      // Fallback to internal validation
-      return await validatePhoneFallback(cleanPhone);
-    }
-
-    const data = await response.json();
+    const data = await api.phoneLookup(phone);
     
     return `📞 Phone Validation Results:
 ━━━━━━━━━━━━━━━━━━━━━━
-📱 Number: ${data.number || cleanPhone}
-🌍 Country: ${data.country_name || 'Unknown'}
-📡 Country Code: ${data.country_code || 'Unknown'}
-📶 Carrier: ${data.carrier || 'Unknown'}
-📞 Type: ${data.line_type || 'Mobile/Landline'}
+📱 Number: ${data.phone}
+🌍 Region: ${data.region}
+📡 Country Code: ${data.countryCode}
+📶 Carrier: ${data.carrier}
+📞 Type: ${data.type}
 ✅ Status: ${data.valid ? 'Valid' : 'Invalid'}
-🗺️ Location: ${data.location || 'Unknown'}
-⏰ Checked: ${new Date().toLocaleString()}`;
+⏰ Checked: ${new Date(data.timestamp).toLocaleString()}`;
   } catch (error) {
+    // Fallback to local validation if backend fails
     return await validatePhoneFallback(phone);
   }
 };

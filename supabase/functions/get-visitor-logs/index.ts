@@ -21,7 +21,7 @@ serve(async (req) => {
     const { data, error } = await supabaseClient
       .from('visitor_logs')
       .select('*')
-      .order('timestamp', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(100)
 
     if (error) {
