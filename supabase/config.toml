@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.clear-visitor-logs]
 verify_jwt = false
+
+[functions.breach-lookup]
+verify_jwt = false
+
+[functions.discord-lookup]
+verify_jwt = false

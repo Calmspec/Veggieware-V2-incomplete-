@@ -111,5 +111,49 @@ export const api = {
       console.error('Clear logs failed:', error);
       return { success: false };
     }
+  },
+
+  async breachLookup(query: string, queryType: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/breach-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ query, queryType })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Breach lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Breach lookup failed:', error);
+      return { breaches: [], total: 0, error: error.message };
+    }
+  },
+
+  async discordLookup(userId: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/discord-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ userId })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Discord lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Discord lookup failed:', error);
+      return { error: error.message };
+    }
   }
 };
