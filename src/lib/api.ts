@@ -90,5 +90,26 @@ export const api = {
       console.error('Set lock status failed:', error);
       return { success: false };
     }
+  },
+
+  async clearVisitorLogs() {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/clear-visitor-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to clear logs');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Clear logs failed:', error);
+      return { success: false };
+    }
   }
 };

@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.set-lock-status]
 verify_jwt = false
+
+[functions.clear-visitor-logs]
+verify_jwt = false

@@ -168,9 +168,13 @@ const Index = () => {
           }
         }}
         onClearLogs={async () => {
-          setLoginAttempts([]);
-          // Note: This only clears the local state. 
-          // To clear backend logs, you'd need a delete endpoint
+          try {
+            await api.clearVisitorLogs();
+            setLoginAttempts([]);
+            await handleRefreshLogs();
+          } catch (error) {
+            console.error('Failed to clear logs:', error);
+          }
         }}
         onRefreshLogs={handleRefreshLogs}
       />
