@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { ScrollArea } from './ui/scroll-area';
 import { User } from '../types';
 import { executeCommand } from '../utils/commands';
 
@@ -10,179 +11,151 @@ interface TerminalProps {
 
 const Terminal = ({ user, onLogout, isLocked }: TerminalProps) => {
   const [input, setInput] = useState('');
-  const [history, setHistory] = useState<Array<{ type: 'input' | 'output'; content: string; timestamp: string }>>([]);
+  const [output, setOutput] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Focus input on component mount
-    inputRef.current?.focus();
-    
-    // Welcome message with ASCII art
-    const welcomeMsg = `
-╔══════════════════════════════════════════════════════════════════════════════╗
-║  ██╗   ██╗███████╗ ██████╗  ██████╗ ██╗███████╗██╗    ██╗ █████╗ ██████╗ ███████╗ ║
-║  ██║   ██║██╔════╝██╔════╝ ██╔════╝ ██║██╔════╝██║    ██║██╔══██╗██╔══██╗██╔════╝ ║
-║  ██║   ██║█████╗  ██║  ███╗██║  ███╗██║█████╗  ██║ █╗ ██║███████║██████╔╝█████╗   ║
-║  ╚██╗ ██╔╝██╔══╝  ██║   ██║██║   ██║██║██╔══╝  ██║███╗██║██╔══██║██╔══██╗██╔══╝   ║
-║   ╚████╔╝ ███████╗╚██████╔╝╚██████╔╝██║███████╗╚███╔███╔╝██║  ██║██║  ██║███████╗ ║
-║    ╚═══╝  ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-
-        ▓▓▓▓▓▓▓  OSINT INTELLIGENCE TERMINAL v3.0  ▓▓▓▓▓▓▓
-        
-┌─────────────────────────────────────────────────────────────────────┐
-│ SESSION ESTABLISHED                                                 │
-│ ─────────────────────────────────────────────────────────────────── │
-│ User:        ${user.username}                                       │
-│ Role:        ${user.role.toUpperCase()}                             │
-│ Session ID:  ${user.loginTime.slice(0, 8)}                          │
-│ Access:      ${user.role === 'admin' ? 'UNRESTRICTED' : 'STANDARD'} │
-│ Timestamp:   ${new Date().toLocaleString()}                         │
-└─────────────────────────────────────────────────────────────────────┘
-
-[✓] System initialized successfully
-[✓] 70+ OSINT tools loaded
-[✓] Connection to intelligence sources: ACTIVE
-
-Type 'help' for available commands or 'exit' to logout
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
-    
-    setHistory([{
-      type: 'output',
-      content: welcomeMsg,
-      timestamp: new Date().toISOString()
-    }]);
+    // Welcome message
+    const welcomeMsg = [
+      '',
+      '╔══════════════════════════════════════════════════════════════╗',
+      '║              VEGGIEWARE OSINT TERMINAL v3.0                  ║',
+      '╚══════════════════════════════════════════════════════════════╝',
+      '',
+      `Welcome, ${user.username}!`,
+      `Role: ${user.role.toUpperCase()}`,
+      `Session: ${new Date().toLocaleString()}`,
+      '',
+      "Type 'help' to see all available commands",
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      ''
+    ];
+    setOutput(welcomeMsg);
   }, [user]);
 
   useEffect(() => {
     // Auto-scroll to bottom
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    if (scrollRef.current) {
+      const scrollArea = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollArea) {
+        scrollArea.scrollTop = scrollArea.scrollHeight;
+      }
     }
-  }, [history]);
+  }, [output]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && input.trim() && !isLoading) {
+      if (isLocked && user.role === 'guest') {
+        setOutput(prev => [...prev, `guest@osint:~$ ${input}`, 'ACCESS DENIED: Terminal locked by administrator', '']);
+        setInput('');
+        return;
+      }
 
-    if (isLocked && user.role === 'guest') {
-      setHistory(prev => [...prev, {
-        type: 'output',
-        content: 'ACCESS DENIED: Terminal locked by administrator',
-        timestamp: new Date().toISOString()
-      }]);
+      const command = input.trim();
+      setOutput(prev => [...prev, `${user.username}@osint:~$ ${command}`]);
       setInput('');
-      return;
-    }
 
-    const command = input.trim();
-    setInput('');
-    
-    // Add input to history
-    setHistory(prev => [...prev, {
-      type: 'input',
-      content: `${user.username}@veggieware:~$ ${command}`,
-      timestamp: new Date().toISOString()
-    }]);
+      if (command === 'exit') {
+        onLogout();
+        return;
+      }
 
-    if (command === 'exit') {
-      onLogout();
-      return;
-    }
+      if (command === 'clear') {
+        setOutput([]);
+        return;
+      }
 
-    if (command === 'clear') {
-      setHistory([]);
-      return;
+      setIsLoading(true);
+      
+      try {
+        const result = await executeCommand(command, user);
+        setOutput(prev => [...prev, result, '']);
+      } catch (error) {
+        setOutput(prev => [...prev, `Error: ${error instanceof Error ? error.message : 'Unknown error'}`, '']);
+      }
+      
+      setIsLoading(false);
     }
-
-    setIsLoading(true);
-    
-    try {
-      const output = await executeCommand(command, user);
-      setHistory(prev => [...prev, {
-        type: 'output',
-        content: output,
-        timestamp: new Date().toISOString()
-      }]);
-    } catch (error) {
-      setHistory(prev => [...prev, {
-        type: 'output',
-        content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date().toISOString()
-      }]);
-    }
-    
-    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-green-400 font-mono overflow-hidden flex flex-col relative">
-      {/* Animated background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
-      
-      {/* Top status bar */}
-      <div className="relative z-10 bg-black/50 backdrop-blur-sm border-b border-green-500/30 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="h-full flex flex-col bg-background">
+      {/* Clean header */}
+      <div className="border-b border-border bg-card px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50"></div>
-            <span className="text-green-300 font-bold text-sm tracking-wider">VEGGIEWARE v3.0</span>
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-sm font-mono text-foreground font-semibold">OSINT Terminal</span>
           </div>
-          <div className="h-4 w-px bg-green-500/30"></div>
-          <span className="text-green-400/70 text-xs">User: {user.username}</span>
-          <span className="text-green-400/70 text-xs">•</span>
-          <span className="text-green-400/70 text-xs">Role: {user.role.toUpperCase()}</span>
+          <div className="h-4 w-px bg-border" />
+          <span className="text-xs font-mono text-muted-foreground">
+            {user.username} • {user.role}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-green-400/50 text-xs">{new Date().toLocaleTimeString()}</span>
+        <div className="text-xs font-mono text-muted-foreground">
+          {new Date().toLocaleTimeString()}
         </div>
       </div>
 
-      <div 
-        ref={terminalRef}
-        className="relative z-10 flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-green-500/30 hover:scrollbar-thumb-green-500/50"
-        style={{ maxHeight: 'calc(100vh - 120px)' }}
-      >
-        {history.map((item, index) => (
-          <div key={index} className={`mb-2 ${item.type === 'input' ? 'text-green-300' : 'text-green-400'}`}>
-            <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{item.content}</pre>
-          </div>
-        ))}
-        
-        {isLoading && (
-          <div className="flex items-center gap-3 text-green-400 mt-4">
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      {/* Terminal output */}
+      <ScrollArea className="flex-1" ref={scrollRef}>
+        <div className="p-6 font-mono text-sm space-y-1">
+          {output.map((line, i) => (
+            <div key={i} className="whitespace-pre-wrap break-words leading-relaxed">
+              {line.startsWith(`${user.username}@osint`) || line.startsWith('guest@osint') ? (
+                <div className="text-primary font-semibold">
+                  {line}
+                </div>
+              ) : line.includes('═') || line.includes('─') || line.includes('┌') || line.includes('└') || line.includes('│') || line.includes('╔') || line.includes('╚') || line.includes('║') ? (
+                <span className="text-primary/80">{line}</span>
+              ) : line.startsWith('•') || line.startsWith('✓') || line.startsWith('✗') ? (
+                <span className="text-foreground">{line}</span>
+              ) : line.includes('://') ? (
+                <span className="text-blue-500">{line}</span>
+              ) : line.startsWith('Usage:') || line.includes('WARNING') || line.includes('⚠️') ? (
+                <span className="text-yellow-500 font-medium">{line}</span>
+              ) : line.includes('Error:') || line.includes('DENIED') ? (
+                <span className="text-red-500 font-medium">{line}</span>
+              ) : (
+                <span className="text-muted-foreground">{line}</span>
+              )}
             </div>
-            <span className="text-sm">Processing command...</span>
-          </div>
-        )}
-      </div>
+          ))}
+          
+          {isLoading && (
+            <div className="flex items-center gap-2 text-primary">
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <span className="text-sm">Processing...</span>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="relative z-10 p-4 border-t border-green-500/30 bg-black/50 backdrop-blur-sm">
-        <div className="flex items-center gap-2 bg-gray-950/50 rounded-lg px-4 py-3 border border-green-500/20 focus-within:border-green-500/50 transition-colors">
-          <span className="text-green-300 font-bold text-sm">{user.username}@veggieware</span>
-          <span className="text-green-500/50">:</span>
-          <span className="text-blue-400">~</span>
-          <span className="text-green-400">$</span>
+      {/* Clean input area */}
+      <div className="border-t border-border bg-card px-6 py-4">
+        <div className="flex items-center gap-3">
+          <span className="text-primary font-mono font-semibold text-sm shrink-0">
+            {user.username}@osint:~$
+          </span>
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent text-green-400 outline-none font-mono text-sm placeholder-green-500/30"
-            placeholder="Enter command..."
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck="false"
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent border-none outline-none font-mono text-sm text-foreground placeholder:text-muted-foreground/40"
+            placeholder="Type 'help' to see all commands..."
+            autoFocus
             disabled={isLoading}
           />
-          <span className="animate-pulse text-green-400">█</span>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
