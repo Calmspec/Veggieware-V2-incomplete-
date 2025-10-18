@@ -2,30 +2,112 @@
 import { User } from '../types';
 
 const HELP_TEXT = `
-VEGGIEWARE 2.1 - OSINT Command Reference
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    VEGGIEWARE 3.0 - OSINT COMMAND CENTER                     ║
+║                    70+ Professional Intelligence Tools                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 
-• ip <IP_ADDRESS>         - Geolocate IP address and gather intelligence
-• email <EMAIL>           - Validate email and check deliverability  
-• phone <PHONE>           - Verify phone number and carrier info
-• breach <EMAIL>          - Check if email appears in data breaches
-• whois <DOMAIN>          - Domain registration and ownership data
-• domain <DOMAIN>         - Comprehensive domain analysis
-• github <USERNAME>       - GitHub user profile intelligence
-• linkedin <PROFILE_URL>  - LinkedIn profile analysis
-• discord <USER_ID>       - Discord user information lookup
-• geoip                   - Get your current IP geolocation
-• analyze <URL>           - Website analysis and threat assessment
-• dns <DOMAIN>            - DNS record enumeration
-• hash <STRING>           - Generate multiple hash types
-• decode <BASE64>         - Decode base64 encoded strings
-• trace <IP>              - Simulate network traceroute
-• scan <DOMAIN>           - Port scanning simulation
-• updatelog               - Show system update changelog
-• clear                   - Clear terminal history
-• help                    - Show this help menu
-• exit                    - Logout from terminal
+┌─ NETWORK & IP INTELLIGENCE ─────────────────────────────────────────────────┐
+│ ip <IP>              - Advanced IP geolocation & threat intelligence        │
+│ geoip                - Analyze your current IP address                      │
+│ trace <IP>           - Network path traceroute simulation                   │
+│ dns <DOMAIN>         - Complete DNS record enumeration                      │
+│ subnet <CIDR>        - Subnet calculator and analysis                       │
+│ ptr <IP>             - Reverse DNS pointer lookup                           │
+│ asn <NUMBER>         - Autonomous System Number lookup                      │
+│ cdn <DOMAIN>         - CDN detection and analysis                           │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-All commands connect to live OSINT APIs for real-time intelligence gathering.
+┌─ EMAIL & PHONE OSINT ───────────────────────────────────────────────────────┐
+│ email <EMAIL>        - Email validation & deliverability check              │
+│ phone <PHONE>        - International phone validation (200+ countries)      │
+│ breach <QUERY>       - Universal breach check (email/phone/username)        │
+│ emailrep <EMAIL>     - Email reputation & threat scoring                    │
+│ disposable <EMAIL>   - Detect disposable/temporary emails                   │
+│ mx <DOMAIN>          - Mail exchange records analysis                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOMAIN & WEB ANALYSIS ─────────────────────────────────────────────────────┐
+│ whois <DOMAIN>       - Domain registration & ownership data                 │
+│ domain <DOMAIN>      - Comprehensive domain intelligence                    │
+│ analyze <URL>        - Website security & threat assessment                 │
+│ scan <DOMAIN>        - Port scanning & service detection                    │
+│ ssl <DOMAIN>         - SSL certificate analysis                             │
+│ headers <URL>        - HTTP security headers analysis                       │
+│ robots <DOMAIN>      - Robots.txt analysis                                  │
+│ sitemap <DOMAIN>     - Sitemap discovery & analysis                         │
+│ wayback <URL>        - Historical snapshots via Wayback Machine             │
+│ screenshot <URL>     - Capture website screenshot                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SOCIAL MEDIA INTELLIGENCE ─────────────────────────────────────────────────┐
+│ github <USER>        - GitHub profile & repository intelligence             │
+│ discord <ID>         - Discord user account analysis                        │
+│ twitter <USER>       - Twitter/X profile enumeration                        │
+│ instagram <USER>     - Instagram OSINT (posts, followers, metadata)         │
+│ linkedin <URL>       - LinkedIn profile intelligence                        │
+│ tiktok <USER>        - TikTok account analysis                              │
+│ reddit <USER>        - Reddit user history & analysis                       │
+│ youtube <CHANNEL>    - YouTube channel statistics                           │
+│ facebook <ID>        - Facebook profile reconnaissance                      │
+│ telegram <USER>      - Telegram user lookup                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ USERNAME ENUMERATION ──────────────────────────────────────────────────────┐
+│ sherlock <USER>      - Search username across 300+ platforms                │
+│ userscan <USER>      - Social media username availability                   │
+│ namechk <USER>       - Domain & social handle availability                  │
+│ checkuser <USER>     - Multi-platform username search                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ GOOGLE DORKS & SEARCH ─────────────────────────────────────────────────────┐
+│ dork <QUERY>         - Generate Google dork queries                         │
+│ gdork <TARGET>       - Pre-built dorks for target domain                    │
+│ leaked <DOMAIN>      - Search for leaked credentials                        │
+│ pastebin <QUERY>     - Search paste sites for exposed data                  │
+│ github-dork <QUERY>  - Search GitHub for sensitive data                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ CRYPTOGRAPHY & ENCODING ───────────────────────────────────────────────────┐
+│ hash <TEXT>          - Generate MD5, SHA1, SHA256, SHA512 hashes           │
+│ decode <BASE64>      - Decode Base64 encoded strings                        │
+│ encode <TEXT>        - Encode text to Base64                                │
+│ rot13 <TEXT>         - ROT13 cipher encode/decode                           │
+│ hex <TEXT>           - Hexadecimal encode/decode                            │
+│ jwt <TOKEN>          - JWT token decoder & analysis                         │
+│ md5crack <HASH>      - MD5 hash reverse lookup                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ METADATA & FILE ANALYSIS ──────────────────────────────────────────────────┐
+│ exif <URL>           - Extract image EXIF metadata                          │
+│ filehash <URL>       - Calculate file hash checksums                        │
+│ pdf <URL>            - PDF metadata extraction                              │
+│ image <URL>          - Reverse image search                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SECURITY & VULNERABILITIES ────────────────────────────────────────────────┐
+│ cve <CVE-ID>         - CVE vulnerability lookup                             │
+│ exploitdb <QUERY>    - Search exploit database                              │
+│ shodan <QUERY>       - Shodan IoT device search                             │
+│ censys <IP>          - Censys internet scan data                            │
+│ virustotal <HASH>    - VirusTotal malware scan                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ BLOCKCHAIN & CRYPTO ───────────────────────────────────────────────────────┐
+│ btc <ADDRESS>        - Bitcoin address lookup                               │
+│ eth <ADDRESS>        - Ethereum wallet analysis                             │
+│ crypto <ADDRESS>     - Multi-chain crypto intelligence                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SYSTEM & UTILITIES ────────────────────────────────────────────────────────┐
+│ updatelog            - System changelog & updates                           │
+│ clear                - Clear terminal history                               │
+│ help                 - Show this command reference                          │
+│ exit                 - Logout from terminal                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+[*] All tools connect to live OSINT sources & APIs for real-time intelligence
+[*] Type any command without arguments for detailed usage instructions
 `;
 
 // Enhanced IP Geolocation API with address and Google Maps
