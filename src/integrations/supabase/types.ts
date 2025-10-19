@@ -14,7 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      system_settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
+      visitor_logs: {
+        Row: {
+          action: string | null
+          created_at: string | null
+          id: number
+          ip_address: string
+          success: boolean | null
+          user_agent: string | null
+          username: string
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string | null
+          id?: number
+          ip_address: string
+          success?: boolean | null
+          user_agent?: string | null
+          username: string
+        }
+        Update: {
+          action?: string | null
+          created_at?: string | null
+          id?: number
+          ip_address?: string
+          success?: boolean | null
+          user_agent?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

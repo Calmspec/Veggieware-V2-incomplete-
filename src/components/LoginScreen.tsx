@@ -4,20 +4,70 @@ interface LoginScreenProps {
   onLogin: (username: string, password: string, userAgent: string, ip: string) => Promise<boolean>;
 }
 
+interface TrackingInfo {
+  ip: string;
+  location: string;
+  isp: string;
+  browser: string;
+  platform: string;
+  resolution: string;
+  colorDepth: string;
+  language: string;
+  timezone: string;
+  latitude: number;
+  longitude: number;
+}
+
 const LoginScreen = ({ onLogin }: LoginScreenProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showLogin, setShowLogin] = useState(false);
-  const [userIP, setUserIP] = useState('');
+  const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [showTracking, setShowTracking] = useState(false);
 
   useEffect(() => {
-    // Get user IP
-    fetch('https://api.ipify.org?format=json')
-      .then(res => res.json())
-      .then(data => setUserIP(data.ip))
-      .catch(() => setUserIP('Unknown'));
+    // Get comprehensive tracking information
+    const getTrackingInfo = async () => {
+      try {
+        // Get IP address
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        const ip = ipData.ip;
+
+        // Get geolocation data
+        const geoResponse = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,regionName,city,lat,lon,isp,timezone`);
+        const geoData = await geoResponse.json();
+
+        // Get browser/device info
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+        const language = navigator.language;
+        const screen = window.screen;
+        const resolution = `${screen.width} x ${screen.height}`;
+        const colorDepth = `${screen.colorDepth} bits`;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        setTrackingInfo({
+          ip,
+          location: geoData.status === 'success' ? `${geoData.city}, ${geoData.regionName}, ${geoData.country}` : 'Unknown',
+          isp: geoData.isp || 'Unknown',
+          browser: userAgent,
+          platform,
+          resolution,
+          colorDepth,
+          language,
+          timezone: geoData.timezone || timezone,
+          latitude: geoData.lat || 0,
+          longitude: geoData.lon || 0,
+        });
+      } catch (error) {
+        console.error('Failed to get tracking info:', error);
+      }
+    };
+
+    getTrackingInfo();
 
     // Animated loading sequence
     const interval = setInterval(() => {
@@ -37,17 +87,20 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setShowTracking(false);
 
     if (!username || !password) {
       setError('⚠ AUTHENTICATION FAILED: INCOMPLETE CREDENTIALS');
+      setShowTracking(true);
       return;
     }
 
     const userAgent = navigator.userAgent;
-    const success = await onLogin(username, password, userAgent, userIP);
+    const success = await onLogin(username, password, userAgent, trackingInfo?.ip || 'Unknown');
     
     if (!success) {
       setError('⚠ ACCESS DENIED: INVALID CREDENTIALS');
+      setShowTracking(true);
       setUsername('');
       setPassword('');
     }
@@ -170,6 +223,49 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
               </div>
             )}
 
+            {showTracking && trackingInfo && (
+              <div className="border-2 border-primary/30 bg-card/80 p-4 text-xs font-mono space-y-1.5">
+                <div className="text-primary font-bold mb-2 text-center tracking-wider">⚠ SECURITY LOG ⚠</div>
+                <div className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1">
+                  <span className="text-muted-foreground">IP Address:</span>
+                  <span className="text-primary">{trackingInfo.ip}</span>
+                  
+                  <span className="text-muted-foreground">Location:</span>
+                  <span className="text-foreground">{trackingInfo.location}</span>
+                  
+                  <span className="text-muted-foreground">ISP:</span>
+                  <span className="text-foreground">{trackingInfo.isp}</span>
+                  
+                  <span className="text-muted-foreground">Browser:</span>
+                  <span className="text-foreground truncate">{trackingInfo.browser}</span>
+                  
+                  <span className="text-muted-foreground">Platform:</span>
+                  <span className="text-foreground">{trackingInfo.platform}</span>
+                  
+                  <span className="text-muted-foreground">Resolution:</span>
+                  <span className="text-foreground">{trackingInfo.resolution}</span>
+                  
+                  <span className="text-muted-foreground">Color Depth:</span>
+                  <span className="text-foreground">{trackingInfo.colorDepth}</span>
+                  
+                  <span className="text-muted-foreground">Language:</span>
+                  <span className="text-foreground">{trackingInfo.language}</span>
+                  
+                  <span className="text-muted-foreground">Timezone:</span>
+                  <span className="text-foreground">{trackingInfo.timezone}</span>
+                  
+                  <span className="text-muted-foreground">Latitude:</span>
+                  <span className="text-foreground">{trackingInfo.latitude}</span>
+                  
+                  <span className="text-muted-foreground">Longitude:</span>
+                  <span className="text-foreground">{trackingInfo.longitude}</span>
+                  
+                  <span className="text-muted-foreground">Accuracy:</span>
+                  <span className="text-foreground">~20 km</span>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               className="w-full border-2 border-primary bg-primary/10 text-primary p-3 hover:bg-primary hover:text-background transition-all font-bold tracking-widest hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] group"
@@ -188,10 +284,12 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
               <span>SESSION:</span>
               <span className="font-mono">{new Date().toISOString().split('T')[0]}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span>IP ADDRESS:</span>
-              <span className="font-mono text-primary/60">{userIP}</span>
-            </div>
+            {trackingInfo && (
+              <div className="flex items-center justify-between">
+                <span>IP ADDRESS:</span>
+                <span className="font-mono text-primary/60">{trackingInfo.ip}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
