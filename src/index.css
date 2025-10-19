@@ -9,33 +9,33 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 20% 8%;
-    --foreground: 140 80% 60%;
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
 
-    --card: 220 25% 10%;
-    --card-foreground: 140 80% 60%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 220 30% 12%;
-    --popover-foreground: 140 80% 60%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 140 80% 60%;
-    --primary-foreground: 220 20% 8%;
+    --primary: 0 0% 95%;
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 200 70% 50%;
-    --secondary-foreground: 220 20% 8%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 220 20% 15%;
-    --muted-foreground: 140 30% 50%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 280 70% 60%;
-    --accent-foreground: 220 20% 8%;
+    --accent: 0 0% 85%;
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 0% 70%;
+    --destructive-foreground: 0 0% 10%;
 
-    --border: 140 50% 25%;
-    --input: 220 25% 12%;
-    --ring: 140 80% 60%;
+    --border: 0 0% 25%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 90%;
 
     --radius: 0.25rem;
   }
@@ -89,10 +89,10 @@ All colors MUST be HSL.
   user-select: none;
 }
 
-/* Cyberpunk glow effects */
+/* Sleek glow effects */
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 5px hsl(var(--primary) / 0.5), 0 0 10px hsl(var(--primary) / 0.3); }
-  50% { box-shadow: 0 0 10px hsl(var(--primary) / 0.8), 0 0 20px hsl(var(--primary) / 0.5); }
+  0%, 100% { box-shadow: 0 0 5px hsl(var(--primary) / 0.3), 0 0 10px hsl(var(--primary) / 0.1); }
+  50% { box-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.2); }
 }
 
 @keyframes scan {
@@ -104,10 +104,10 @@ All colors MUST be HSL.
   animation: glow 2s ease-in-out infinite;
 }
 
-/* Grid background pattern */
+/* Minimal grid background pattern */
 .grid-bg {
   background-image: 
-    linear-gradient(hsl(var(--primary) / 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.05) 1px, transparent 1px);
-  background-size: 30px 30px;
+    linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
