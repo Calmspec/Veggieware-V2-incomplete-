@@ -45,7 +45,7 @@ const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onC
         </div>
         <button 
           onClick={onLogout}
-          className="border-2 border-primary/50 bg-primary/10 text-primary px-6 py-2 hover:bg-primary hover:text-background transition-all font-bold tracking-wider hover:shadow-[0_0_15px_rgba(0,255,100,0.5)]"
+          className="border-2 border-primary/50 bg-primary/10 text-primary px-6 py-2 hover:bg-primary hover:text-background transition-all font-bold tracking-wider hover:shadow-[0_0_15px_rgba(255,255,255,0.5)]"
         >
           LOGOUT
         </button>
@@ -194,8 +194,8 @@ const AdminPanel = ({ user, loginAttempts, onLogout, isLocked, onToggleLock, onC
                     onClick={() => onToggleLock(!isLocked)}
                     className={`border-2 px-6 py-3 transition-all font-bold tracking-wider ${
                       isLocked 
-                        ? 'border-destructive bg-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-[0_0_20px_rgba(255,0,0,0.5)]' 
-                        : 'border-primary bg-primary/10 text-primary hover:bg-primary hover:text-background hover:shadow-[0_0_20px_rgba(0,255,100,0.5)]'
+                        ? 'border-destructive bg-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]' 
+                        : 'border-primary bg-primary/10 text-primary hover:bg-primary hover:text-background hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]'
                     }`}
                   >
                     {isLocked ? '🔓 UNLOCK SYSTEM' : '🔒 LOCK SYSTEM'}

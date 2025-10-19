@@ -113,7 +113,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
       <div className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-primary/20" />
 
       <div className="w-full max-w-md relative z-10">
-        <div className="border-2 border-primary/70 bg-card/90 backdrop-blur-md shadow-[0_0_50px_rgba(0,255,100,0.2)] p-8">
+        <div className="border-2 border-primary/70 bg-card/90 backdrop-blur-md shadow-[0_0_50px_rgba(255,255,255,0.15)] p-8">
           {/* Header */}
           <div className="text-center mb-8 space-y-3">
             <div className="relative inline-block">
@@ -142,7 +142,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-input border border-primary/40 text-foreground p-3 font-mono text-sm focus:outline-none focus:border-primary focus:shadow-[0_0_10px_rgba(0,255,100,0.3)] transition-all"
+                className="w-full bg-input border border-primary/40 text-foreground p-3 font-mono text-sm focus:outline-none focus:border-primary focus:shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all"
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
@@ -158,7 +158,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-input border border-primary/40 text-foreground p-3 font-mono text-sm focus:outline-none focus:border-primary focus:shadow-[0_0_10px_rgba(0,255,100,0.3)] transition-all"
+                className="w-full bg-input border border-primary/40 text-foreground p-3 font-mono text-sm focus:outline-none focus:border-primary focus:shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all"
                 autoComplete="off"
                 placeholder="******************"
               />
@@ -172,7 +172,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
 
             <button
               type="submit"
-              className="w-full border-2 border-primary bg-primary/10 text-primary p-3 hover:bg-primary hover:text-background transition-all font-bold tracking-widest hover:shadow-[0_0_20px_rgba(0,255,100,0.5)] group"
+              className="w-full border-2 border-primary bg-primary/10 text-primary p-3 hover:bg-primary hover:text-background transition-all font-bold tracking-widest hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] group"
             >
               <span className="flex items-center justify-center gap-2">
                 <span>→</span>

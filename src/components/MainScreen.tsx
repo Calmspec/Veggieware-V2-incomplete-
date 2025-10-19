@@ -66,7 +66,7 @@ const MainScreen = ({ onEnter }: MainScreenProps) => {
               px-16 py-6 text-2xl font-bold tracking-[0.5em]
               transition-all duration-200
               hover:bg-primary hover:text-background
-              hover:shadow-[0_0_30px_rgba(0,255,100,0.5)]
+              hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]
               ${isPressed ? 'scale-95' : 'hover:scale-105'}
             `}
           >
