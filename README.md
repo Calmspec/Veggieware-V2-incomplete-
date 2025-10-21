@@ -11,8 +11,8 @@ Clone the Repository:
 
 bash
 Copy code
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
+git clone [<YOUR_GIT_URL>](https://github.com/Calmspec/Veggieware-V2-incomplete-)
+cd Veggieware-V2-incomplete
 Install Dependencies:
 
 bash
