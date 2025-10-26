@@ -1,1 +1,43 @@
 project_id = "rvlsheilakxhgazpcmad"
+
+[functions.phone-lookup]
+verify_jwt = false
+
+[functions.log-visitor]
+verify_jwt = false
+
+[functions.get-visitor-logs]
+verify_jwt = false
+
+[functions.check-lock-status]
+verify_jwt = false
+
+[functions.set-lock-status]
+verify_jwt = false
+
+[functions.clear-visitor-logs]
+verify_jwt = false
+
+[functions.breach-lookup]
+verify_jwt = false
+
+[functions.discord-lookup]
+verify_jwt = false
+
+[functions.ip-lookup]
+verify_jwt = false
+
+[functions.whois-lookup]
+verify_jwt = false
+
+[functions.dns-lookup]
+verify_jwt = false
+
+[functions.email-verify]
+verify_jwt = false
+
+[functions.username-search]
+verify_jwt = false
+
+[functions.mac-lookup]
+verify_jwt = false

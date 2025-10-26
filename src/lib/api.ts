@@ -1,6 +1,6 @@
-// Use Lovable's built-in Supabase integration
-const SUPABASE_URL = 'https://kbjkzugzumejvylwsqml.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtiamt6dWd6dW1lanZ5bHdzcW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwNzE3MTYsImV4cCI6MjA0NzY0NzcxNn0.QYOeOZqBqWLj8KktOWj-z9COpI9eQILgdl0YOkqZqSA';
+// Use Lovable Cloud Supabase integration
+const SUPABASE_URL = 'https://rvlsheilakxhgazpcmad.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bHNoZWlsYWt4aGdhenBjbWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDU4NDQsImV4cCI6MjA3NjM4MTg0NH0.pTuDPB36HxZPUx20nnmXJHrw1H6otoe7XmkhwdzbPqg';
 
 export const api = {
   async phoneLookup(phone: string) {
