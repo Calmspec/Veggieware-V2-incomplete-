@@ -197,21 +197,24 @@ export const executeCommand = async (input: string, user: User): Promise<string>
     // Network Commands
     case 'whois':
       if (args.length === 0) return 'Usage: whois <domain>';
-      return `WHOIS Lookup for ${args[0]}:\n\n` +
-        `• Online Tool: https://who.is/whois/${args[0]}\n` +
-        `• Check: Registrar, creation date, expiry\n` +
-        `• Contact: Admin, tech contacts (if public)\n` +
-        `• Nameservers: DNS information`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.whoisLookup(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'WHOIS lookup failed. Please try again.';
+      }
 
     case 'nslookup':
     case 'dig':
       if (args.length === 0) return 'Usage: nslookup <domain>';
-      return `DNS Lookup for ${args[0]}:\n\n` +
-        `• A Records: IPv4 addresses\n` +
-        `• AAAA: IPv6 addresses\n` +
-        `• MX: Mail servers\n` +
-        `• TXT: SPF, DKIM records\n` +
-        `• Tool: https://mxtoolbox.com/SuperTool.aspx?action=a:${args[0]}`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.dnsLookup(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'DNS lookup failed. Please try again.';
+      }
 
     case 'traceroute':
       if (args.length === 0) return 'Usage: traceroute <domain or ip>';
@@ -240,11 +243,13 @@ export const executeCommand = async (input: string, user: User): Promise<string>
     // Email & Phone
     case 'email-verify':
       if (args.length === 0) return 'Usage: email-verify <email>';
-      return `Email Verification for ${args[0]}:\n\n` +
-        `• Format: ${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(args[0]) ? '✓ Valid' : '✗ Invalid'}\n` +
-        `• Tools: Hunter.io, EmailHippo\n` +
-        `• Check: MX records, SMTP validation\n` +
-        `• Breach: Check haveibeenpwned.com`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.emailVerify(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Email verification failed. Please try again.';
+      }
 
     case 'phone-format':
       if (args.length === 0) return 'Usage: phone-format <number>';
@@ -257,36 +262,35 @@ export const executeCommand = async (input: string, user: User): Promise<string>
 
     case 'username':
       if (args.length === 0) return 'Usage: username <username>';
-      return `Username Search for "${args[0]}":\n\n` +
-        `• Namechk: https://namechk.com/${args[0]}\n` +
-        `• KnowEm: Check 500+ social networks\n` +
-        `• Manual: Search each platform individually\n` +
-        `• Variations: Try with numbers, underscores`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.usernameSearch(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Username search failed. Please try again.';
+      }
 
     // IP & Location
     case 'ip-info':
-      if (args.length === 0) return 'Usage: ip-info <ip>';
-      return `IP Information for ${args[0]}:\n\n` +
-        `• Lookup: https://ipinfo.io/${args[0]}\n` +
-        `• Geolocation: City, region, country\n` +
-        `• ISP: Internet service provider\n` +
-        `• ASN: Autonomous system number`;
-
     case 'geoip':
-      if (args.length === 0) return 'Usage: geoip <ip>';
-      return `GeoIP Lookup for ${args[0]}:\n\n` +
-        `• Location: Approximate geographic location\n` +
-        `• Tools: MaxMind, IP2Location\n` +
-        `• Accuracy: City-level (varies)\n` +
-        `• VPN: May show VPN server location`;
+      if (args.length === 0) return 'Usage: ip-info <ip>';
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.ipLookup(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'IP lookup failed. Please try again.';
+      }
 
     case 'reverse-ip':
       if (args.length === 0) return 'Usage: reverse-ip <ip>';
-      return `Reverse IP Lookup for ${args[0]}:\n\n` +
-        `• Find: Domains hosted on this IP\n` +
-        `• Tools: ViewDNS, YouGetSignal\n` +
-        `• Shared Hosting: Multiple domains possible\n` +
-        `• URL: https://viewdns.info/reverseip/?host=${args[0]}`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.ipLookup(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Reverse IP lookup failed. Please try again.';
+      }
 
     // Google Dorks
     case 'dork':
@@ -362,11 +366,13 @@ export const executeCommand = async (input: string, user: User): Promise<string>
 
     case 'mac-lookup':
       if (args.length === 0) return 'Usage: mac-lookup <mac address>';
-      return `MAC Address Lookup for ${args[0]}:\n\n` +
-        `• Vendor: Identify manufacturer\n` +
-        `• Tool: https://macaddress.io/mac-address-lookup\n` +
-        `• Format: XX:XX:XX:XX:XX:XX\n` +
-        `• OUI: First 3 bytes = vendor`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.macLookup(args[0]);
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'MAC lookup failed. Please try again.';
+      }
 
     case 'company':
       if (args.length === 0) return 'Usage: company <company name>';

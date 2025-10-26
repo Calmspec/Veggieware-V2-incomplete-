@@ -155,5 +155,137 @@ export const api = {
       console.error('Discord lookup failed:', error);
       return { error: error.message };
     }
+  },
+
+  async ipLookup(ip: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/ip-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ ip })
+      });
+      
+      if (!response.ok) {
+        throw new Error('IP lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('IP lookup failed:', error);
+      return { error: error.message };
+    }
+  },
+
+  async whoisLookup(domain: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/whois-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ domain })
+      });
+      
+      if (!response.ok) {
+        throw new Error('WHOIS lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('WHOIS lookup failed:', error);
+      return { error: error.message };
+    }
+  },
+
+  async dnsLookup(domain: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/dns-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ domain })
+      });
+      
+      if (!response.ok) {
+        throw new Error('DNS lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('DNS lookup failed:', error);
+      return { error: error.message };
+    }
+  },
+
+  async emailVerify(email: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/email-verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ email })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Email verification failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Email verification failed:', error);
+      return { error: error.message };
+    }
+  },
+
+  async usernameSearch(username: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/username-search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ username })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Username search failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Username search failed:', error);
+      return { error: error.message };
+    }
+  },
+
+  async macLookup(mac: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/mac-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ mac })
+      });
+      
+      if (!response.ok) {
+        throw new Error('MAC lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('MAC lookup failed:', error);
+      return { error: error.message };
+    }
   }
 };
