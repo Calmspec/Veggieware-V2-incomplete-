@@ -22,23 +22,41 @@ serve(async (req) => {
 
     // Use whoisjsonapi.com for WHOIS data
     const response = await fetch(`https://www.whoisjsonapi.com/v1/${domain}`);
+    
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({ 
+          domain: domain,
+          error: 'WHOIS lookup failed',
+          message: 'Unable to retrieve WHOIS data for this domain'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const data = await response.json();
 
     if (data.error) {
       return new Response(
-        JSON.stringify({ error: 'WHOIS lookup failed' }),
+        JSON.stringify({ 
+          domain: domain,
+          error: 'WHOIS lookup failed',
+          message: data.error
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const result = {
-      domain: data.domain,
-      registrar: data.registrar,
-      createdDate: data.created_date,
-      expiryDate: data.expiry_date,
-      updatedDate: data.updated_date,
-      nameservers: data.nameservers || [],
+      domain: data.domain || domain,
+      registrar: data.registrar || 'N/A',
+      createdDate: data.created_date || data.creation_date || 'N/A',
+      expiryDate: data.expiry_date || data.expiration_date || 'N/A',
+      updatedDate: data.updated_date || 'N/A',
+      nameservers: data.nameservers || data.name_servers || [],
       status: data.status || [],
+      registrantOrg: data.registrant_org || 'REDACTED',
+      registrantCountry: data.registrant_country || 'N/A'
     };
 
     return new Response(

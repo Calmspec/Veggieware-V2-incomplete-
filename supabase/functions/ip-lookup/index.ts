@@ -20,29 +20,54 @@ serve(async (req) => {
       );
     }
 
-    // Use ipapi.co for IP information
-    const response = await fetch(`https://ipapi.co/${ip}/json/`);
-    const data = await response.json();
+    // Use multiple IP intelligence APIs for comprehensive data
+    const seonApiKey = Deno.env.get('SEON_API_KEY');
+    
+    // Primary lookup with ipapi.co
+    const ipapiResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+    const ipapiData = await ipapiResponse.json();
 
-    if (data.error) {
+    if (ipapiData.error) {
       return new Response(
-        JSON.stringify({ error: data.reason || 'IP lookup failed' }),
+        JSON.stringify({ error: ipapiData.reason || 'IP lookup failed' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Enhanced lookup with SEON if available
+    let fraudScore = null;
+    let vpnDetected = false;
+    let proxyDetected = false;
+    
+    if (seonApiKey) {
+      try {
+        const seonResponse = await fetch(`https://api.seon.io/SeonRestService/ip-api/v1.0/${ip}`, {
+          headers: { 'X-API-KEY': seonApiKey }
+        });
+        const seonData = await seonResponse.json();
+        fraudScore = seonData.data?.fraud_score;
+        vpnDetected = seonData.data?.vpn === true;
+        proxyDetected = seonData.data?.proxy === true;
+      } catch (e) {
+        console.log('SEON lookup failed:', e);
+      }
+    }
+
     const result = {
-      ip: data.ip,
-      city: data.city,
-      region: data.region,
-      country: data.country_name,
-      countryCode: data.country_code,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      timezone: data.timezone,
-      isp: data.org,
-      asn: data.asn,
-      postal: data.postal,
+      ip: ipapiData.ip,
+      city: ipapiData.city,
+      region: ipapiData.region,
+      country: ipapiData.country_name,
+      countryCode: ipapiData.country_code,
+      latitude: ipapiData.latitude,
+      longitude: ipapiData.longitude,
+      timezone: ipapiData.timezone,
+      isp: ipapiData.org,
+      asn: ipapiData.asn,
+      postal: ipapiData.postal,
+      fraudScore,
+      vpnDetected,
+      proxyDetected
     };
 
     return new Response(

@@ -21,8 +21,9 @@ serve(async (req) => {
     }
 
     // Use Google DNS-over-HTTPS API
-    const types = ['A', 'AAAA', 'MX', 'TXT', 'NS', 'CNAME'];
+    const types = ['A', 'AAAA', 'MX', 'TXT', 'NS', 'CNAME', 'SOA'];
     const records: any = {};
+    let totalRecords = 0;
 
     for (const type of types) {
       try {
@@ -38,14 +39,24 @@ serve(async (req) => {
             data: ans.data,
             ttl: ans.TTL,
           }));
+          totalRecords += data.Answer.length;
         }
       } catch (e) {
         console.error(`Failed to lookup ${type} records:`, e);
       }
     }
 
+    const summary = {
+      domain,
+      totalRecords,
+      recordTypes: Object.keys(records),
+      hasA: !!records.A,
+      hasMX: !!records.MX,
+      hasNS: !!records.NS
+    };
+
     return new Response(
-      JSON.stringify({ domain, records }),
+      JSON.stringify({ domain, records, summary }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

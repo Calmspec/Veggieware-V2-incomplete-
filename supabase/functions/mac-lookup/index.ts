@@ -33,17 +33,34 @@ serve(async (req) => {
     // Get OUI (first 6 characters)
     const oui = cleanMac.substring(0, 6);
 
-    // Use macaddress.io API
-    const response = await fetch(`https://api.macaddress.io/v1?apiKey=at_free&output=json&search=${oui}`);
-    const data = await response.json();
+    // Use macaddress.io API with error handling
+    let vendor = 'Unknown';
+    let company = 'Unknown';
+    let address = 'N/A';
+    let country = 'N/A';
+
+    try {
+      const response = await fetch(`https://api.macaddress.io/v1?apiKey=at_free&output=json&search=${oui}`);
+      const data = await response.json();
+      
+      if (data.vendorDetails) {
+        vendor = data.vendorDetails.companyName || 'Unknown';
+        company = data.vendorDetails.companyName || 'Unknown';
+        address = data.vendorDetails.companyAddress || 'N/A';
+        country = data.vendorDetails.countryCode || 'N/A';
+      }
+    } catch (e) {
+      console.log('MAC lookup API failed, using OUI only:', e);
+    }
 
     const result = {
       mac: mac,
       oui: oui,
-      vendor: data.vendorDetails?.companyName || 'Unknown',
-      company: data.vendorDetails?.companyName || 'Unknown',
-      address: data.vendorDetails?.companyAddress || 'N/A',
-      country: data.vendorDetails?.countryCode || 'N/A',
+      vendor: vendor,
+      company: company,
+      address: address,
+      country: country,
+      formatted: `${mac} - ${vendor}`
     };
 
     return new Response(
