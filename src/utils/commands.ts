@@ -130,69 +130,84 @@ export const executeCommand = async (input: string, user: User): Promise<string>
     // Social Media Commands
     case 'instagram':
       if (args.length === 0) return 'Usage: instagram <username>';
-      return `Instagram OSINT for @${args[0]}:\n\n` +
-        `• Profile: https://www.instagram.com/${args[0]}/\n` +
-        `• Stories: Check via web or app\n` +
-        `• Followers: Analyze engagement patterns\n` +
-        `• Posts: Look for location tags, timestamps\n` +
-        `• Tools: Picuki, ImgInn for viewing without account`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args[0], 'instagram');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Instagram lookup failed. Please try again.';
+      }
 
     case 'facebook':
       if (args.length === 0) return 'Usage: facebook <name or id>';
-      return `Facebook OSINT for "${args.join(' ')}":\n\n` +
-        `• Search: https://www.facebook.com/search/top?q=${encodeURIComponent(args.join(' '))}\n` +
-        `• Graph Search: Use specific queries\n` +
-        `• Check: Photos, posts, friends, groups\n` +
-        `• Tip: Use advanced search operators`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args.join(' '), 'facebook');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Facebook lookup failed. Please try again.';
+      }
 
     case 'twitter':
     case 'x':
       if (args.length === 0) return 'Usage: twitter <username>';
-      return `Twitter/X OSINT for @${args[0]}:\n\n` +
-        `• Profile: https://twitter.com/${args[0]}\n` +
-        `• Advanced Search: https://twitter.com/search-advanced\n` +
-        `• Timeline: Check tweets, replies, likes\n` +
-        `• Tools: TweetDeck, Nitter for privacy`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args[0], 'twitter');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Twitter lookup failed. Please try again.';
+      }
 
     case 'linkedin':
       if (args.length === 0) return 'Usage: linkedin <name>';
-      return `LinkedIn OSINT for "${args.join(' ')}":\n\n` +
-        `• Search: https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(args.join(' '))}\n` +
-        `• Check: Work history, connections, skills\n` +
-        `• Company: Research employer details\n` +
-        `• Boolean: Use AND, OR, NOT operators`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args.join(' '), 'linkedin');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'LinkedIn lookup failed. Please try again.';
+      }
 
     case 'github':
       if (args.length === 0) return 'Usage: github <username>';
-      return `GitHub OSINT for ${args[0]}:\n\n` +
-        `• Profile: https://github.com/${args[0]}\n` +
-        `• Repos: Check code, commits, stars\n` +
-        `• Activity: Contributions, issues, PRs\n` +
-        `• Gists: https://gist.github.com/${args[0]}`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args[0], 'github');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'GitHub lookup failed. Please try again.';
+      }
 
     case 'tiktok':
       if (args.length === 0) return 'Usage: tiktok <username>';
-      return `TikTok OSINT for @${args[0]}:\n\n` +
-        `• Profile: https://www.tiktok.com/@${args[0]}\n` +
-        `• Videos: Check captions, sounds, hashtags\n` +
-        `• Engagement: Likes, comments, shares\n` +
-        `• Location: Look for tagged places`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args[0], 'tiktok');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'TikTok lookup failed. Please try again.';
+      }
 
     case 'reddit':
       if (args.length === 0) return 'Usage: reddit <username>';
-      return `Reddit OSINT for u/${args[0]}:\n\n` +
-        `• Profile: https://www.reddit.com/user/${args[0]}\n` +
-        `• Posts: Check submissions history\n` +
-        `• Comments: Analyze interactions\n` +
-        `• Tools: RedditMetis, Reddit Search`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args[0], 'reddit');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Reddit lookup failed. Please try again.';
+      }
 
     case 'snapchat':
       if (args.length === 0) return 'Usage: snapchat <username>';
-      return `Snapchat OSINT for ${args[0]}:\n\n` +
-        `• Add via username or snapcode\n` +
-        `• Check: Stories, Snap Map\n` +
-        `• Location: If sharing on map\n` +
-        `• Note: Limited public info`;
+      try {
+        const { api } = await import('../lib/api');
+        const result = await api.socialLookup(args[0], 'snapchat');
+        return JSON.stringify(result, null, 2);
+      } catch (error) {
+        return 'Snapchat lookup failed. Please try again.';
+      }
 
     // Network Commands
     case 'whois':

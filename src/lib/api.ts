@@ -287,5 +287,27 @@ export const api = {
       console.error('MAC lookup failed:', error);
       return { error: error.message };
     }
+  },
+
+  async socialLookup(username: string, platform: string) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/social-lookup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ username, platform })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Social lookup failed');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Social lookup failed:', error);
+      return { error: error.message };
+    }
   }
 };

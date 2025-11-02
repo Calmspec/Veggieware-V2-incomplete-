@@ -39,5 +39,9 @@ verify_jwt = false
 [functions.username-search]
 verify_jwt = false
 
+
 [functions.mac-lookup]
+verify_jwt = false
+
+[functions.social-lookup]
 verify_jwt = false
